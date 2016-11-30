@@ -1,5 +1,6 @@
 library(Hmisc)
 library(pander)
+library(pROC)
 #format_pval
 
 catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),con.test=c()){
@@ -18,8 +19,8 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),con.
           # calculate the statistics 
           seperate_info[[i]][1,1] = paste0('**',ifelse(label(data[,list_of_variables[i]])=='',list_of_variables[i],label(data[,list_of_variables[i]])),'**')
           seperate_info[[i]][2,3] = length(data[,list_of_variables[i]])
-          seperate_info[[i]][3,3] = paste00(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),2),']') 
-          seperate_info[[i]][4,3] = paste00(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),2),','
+          seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),2),']') 
+          seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),2),','
                                                                                         ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),2)),']')
           seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
         }    
@@ -56,8 +57,8 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),con.
       seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),2),']') 
       seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),2),',',
                                                                                     round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),2)),']')
-      seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
       
+      seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
       # seperate group information
       for(ngroup in 1:nlevels(data[,which.group])){
         data_subset = subset(data,data[,which.group]==levels(data[,which.group])[ngroup]) # take subset on which.group levels
@@ -69,40 +70,6 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),con.
         seperate_info[[i]][5,3+ngroup] = paste0(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data_subset[,list_of_variables[i]],na.rm=TRUE)[2]) 
         
       }
-      if(con.test==TRUE){
-        # overal test
-        Template_OveralTest = matrix('',nrow(TemplateMatrix_MultipleGroups_Continuous),1)
-        colnames(Template_OveralTest) = 'Overall'
-        Template_OveralTest[1,1] = 'p.val'
-        Template_OveralTest[2,1] = format_pval(kruskal.test(data[,list_of_variables[1]] ~ data[,which.group])$p.value)
-        
-        
-        Template_ContinuousTest = matrix('',nrow(TemplateMatrix_MultipleGroups_Continuous),
-                                         nlevels(data[,which.group])*(nlevels(data[,which.group])-1)/2)
-        colnames(Template_ContinuousTest) = letters[1:ncol(Template_ContinuousTest)]
-        
-        testnr=1
-        for(k in 1:(length(levels(data[,which.group]))-1)){
-          for(j in 2:length(levels(data[,which.group]))){
-            if(k<j){
-              colnames(Template_ContinuousTest)[testnr] = paste0('[',levels(data[,which.group])[k],' vs.',
-                                                                 levels(data[,which.group])[j],']')
-              
-              Template_ContinuousTest[1,testnr] = 'AUC (p.val)'
-              
-              data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
-              
-              Template_ContinuousTest[2,testnr] = paste0(round(auc(droplevels(data_subset[,which.group]), data_subset[,list_of_variables[1]]),2),
-                                                         '(',
-                                                         format_pval(wilcox.test(data_subset[,list_of_variables[1]] ~ droplevels(data_subset[,which.group]))$p.value),
-                                                         ')')
-              testnr =  testnr + 1
-            }
-          }
-        }
-      }
-      seperate_info[[i]] = cbind(seperate_info[[i]],Template_OveralTest,Template_ContinuousTest)
-      
     }
     ## Discrete --------------------------------------------------------------
       if(is.factor(data[,list_of_variables[i]]) | is.character(data[,list_of_variables[i]])){
@@ -138,65 +105,6 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),con.
 
 
 
-########################
-catcont(list_of_variables=c('leeftijd','Gewicht.kg'),
-        data=tonsil_work,
-        group=TRUE,
-        which.group=c('condition.cat'),
-        con.test = TRUE)
-
-
-
-
-
-list_of_variables=c('leeftijd')
-data=tonsil_work
-group=TRUE
-which.group=c('gender.cat')
-TemplateMatrix_MultipleGroups_Continuous = matrix(c(''),5,nlevels(data[,which.group])+3)
-con.test=TRUE
-i = 1
-#con.test = logical
-
-
-
-
-
-
-
-if(con.test==TRUE){
-  # overal test
-  Template_OveralTest = matrix('',nrow(TemplateMatrix_MultipleGroups_Continuous),1)
-  colnames(Template_OveralTest) = 'Overall'
-  Template_OveralTest[1,1] = 'p.val'
-  Template_OveralTest[2,1] = format_pval(kruskal.test(data[,list_of_variables[1]] ~ data[,which.group])$p.value)
-  
-  
-  Template_ContinuousTest = matrix('',nrow(TemplateMatrix_MultipleGroups_Continuous),
-                                   nlevels(data[,which.group])*(nlevels(data[,which.group])-1)/2)
-  colnames(Template_ContinuousTest) = letters[1:ncol(Template_ContinuousTest)]
-  
-  testnr=1
-  for(k in 1:(length(levels(data[,which.group]))-1)){
-    for(j in 2:length(levels(data[,which.group]))){
-      if(k<j){
-        colnames(Template_ContinuousTest)[testnr] = paste0('[',levels(data[,which.group])[k],' vs.',
-                                                           levels(data[,which.group])[j],']')
-        
-        Template_ContinuousTest[1,testnr] = 'AUC (p.val)'
-        
-        data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
-        
-        Template_ContinuousTest[2,testnr] = paste0(round(auc(droplevels(data_subset[,which.group]), data_subset[,list_of_variables[1]]),2),
-                                                   '(',
-                                                   format_pval(wilcox.test(data_subset[,list_of_variables[1]] ~ droplevels(data_subset[,which.group]))$p.value),
-                                                   ')')
-        testnr =  testnr + 1
-      }
-    }
-  }
-}
-cbind(Template_OveralTest,Template_ContinuousTest)
 
 
 
