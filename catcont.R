@@ -8,14 +8,15 @@ require(Hmisc)
 require(pander)
 require(pROC)
 # required functions ---------------------------------------------------------
-format_pval <- function(x){
-  if (x < .001) return(paste('<', '.001'))
-  else round(x, 3)   # 3 = no. of digits to round p value to if .001 < p < .250.
-}
-
 
 # catcon function ---------------------------------------------------------
 catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c(),digits=2){
+  # format p-values function (run in function environment)
+  format_pval <- function(x){
+    if (x < .001) return(paste('<', '.001'))
+    else round(x, 3)   # 3 = no. of digits to round p value to if .001 < p < .250.
+  }
+  
   ## list to save info on all variables (length is number of considerd variables)
   seperate_info = vector('list',length(list_of_variables))
   if (group==FALSE){
