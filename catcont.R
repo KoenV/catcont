@@ -15,7 +15,7 @@ format_pval <- function(x){
 
 
 # catcon function ---------------------------------------------------------
-catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c()){
+catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c(),digits=2){
   ## list to save info on all variables (length is number of considerd variables)
   seperate_info = vector('list',length(list_of_variables))
   if (group==FALSE){
@@ -30,9 +30,9 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
           # calculate the statistics 
           seperate_info[[i]][1,1] = paste0('**',ifelse(label(data[,list_of_variables[i]])=='',list_of_variables[i],label(data[,list_of_variables[i]])),'**')
           seperate_info[[i]][2,3] = length(data[,list_of_variables[i]])
-          seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),2),']') 
-          seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),2),','
-                                                                                        ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),2)),']')
+          seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),']') 
+          seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),','
+                                                                                        ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
           seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
         }    
    
@@ -65,9 +65,9 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
       seperate_info[[i]]=TemplateMatrix_MultipleGroups_Continuous
       # total information
       seperate_info[[i]][2,3] = length(data[,list_of_variables[i]])
-      seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),2),']') 
-      seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),2),',',
-                                                                                    round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),2)),']')
+      seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),']') 
+      seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
+                                                                                    round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
       
       seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
       # seperate group information
@@ -75,9 +75,9 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         data_subset = subset(data,data[,which.group]==levels(data[,which.group])[ngroup]) # take subset on which.group levels
         
         seperate_info[[i]][2,3+ngroup] = length(data_subset[,list_of_variables[i]])
-        seperate_info[[i]][3,3+ngroup] = paste0(round(mean(data_subset[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data_subset[,list_of_variables[i]],na.rm=TRUE),2),']') 
-        seperate_info[[i]][4,3+ngroup] = paste0(median(data_subset[,list_of_variables[i]]),'[',paste0(round(quantile(data_subset[,list_of_variables[i]],c(.25),na.rm=TRUE),2),',',
-                                                                                                    round(quantile(data_subset[,list_of_variables[i]],c(.75),na.rm=TRUE),2)),']')
+        seperate_info[[i]][3,3+ngroup] = paste0(round(mean(data_subset[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data_subset[,list_of_variables[i]],na.rm=TRUE),digits),']') 
+        seperate_info[[i]][4,3+ngroup] = paste0(median(data_subset[,list_of_variables[i]]),'[',paste0(round(quantile(data_subset[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
+                                                                                                    round(quantile(data_subset[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
         seperate_info[[i]][5,3+ngroup] = paste0(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data_subset[,list_of_variables[i]],na.rm=TRUE)[2]) 
         
       }
@@ -104,7 +104,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
               
               data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
               
-              Template_ContinuousTest[2,testnr] = paste0(round(auc(droplevels(data_subset[,which.group]), data_subset[,list_of_variables[i]]),2),
+              Template_ContinuousTest[2,testnr] = paste0(round(auc(droplevels(data_subset[,which.group]), data_subset[,list_of_variables[i]]),digits),
                                                          '(',
                                                          format_pval(wilcox.test(data_subset[,list_of_variables[i]] ~ droplevels(data_subset[,which.group]))$p.value),
                                                          ')')
@@ -132,10 +132,10 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
             
             seperate_info[[i]][level+2,1] = levels(data_subset[,list_of_variables[i]])[level]
             
-            seperate_info[[i]][level+2,3] = paste0(sum(data[,'count_dummy']),'/',nrow(data),'(',round((sum(data[,'count_dummy'])/nrow(data))*100,2),'%',')')
+            seperate_info[[i]][level+2,3] = paste0(sum(data[,'count_dummy']),'/',nrow(data),'(',round((sum(data[,'count_dummy'])/nrow(data))*100,digits),'%',')')
             
             data_subset[,'count_dummy'] = ifelse(data_subset[,list_of_variables[i]]==levels(data_subset[,list_of_variables[i]])[level],1,0)
-            seperate_info[[i]][level+2,3+ngroup] = paste0(sum(data_subset[,'count_dummy']),'/',nrow(data_subset),'(',round((sum(data_subset[,'count_dummy'])/nrow(data_subset))*100,2),'%',')')
+            seperate_info[[i]][level+2,3+ngroup] = paste0(sum(data_subset[,'count_dummy']),'/',nrow(data_subset),'(',round((sum(data_subset[,'count_dummy'])/nrow(data_subset))*100,digits),'%',')')
           }
         }
         if(formal.test==TRUE){
@@ -159,7 +159,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
                   Template_DiscreteTest[1,testnr] = '95% CI (p.val)'
                   
                   data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
-                  hold.CI = round((prop.test(table(droplevels(data_subset[,which.group]),data_subset[,list_of_variables[i]]), correct=FALSE,conf.level=.95))$conf.int,2)
+                  hold.CI = round((prop.test(table(droplevels(data_subset[,which.group]),data_subset[,list_of_variables[i]]), correct=FALSE,conf.level=.95))$conf.int,digits)
                   Template_DiscreteTest[2,testnr] = paste0(paste0('[',hold.CI[1],',',hold.CI[2],']'),
                                                            '(',
                                                            format_pval((fisher.test(table(data_subset[,which.group],data_subset[,list_of_variables[i]]),alternative = "two.sided",conf.level=.95))$p.value),
@@ -193,7 +193,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
     }
   }
   full_table = do.call("rbind", seperate_info)
-  knitr::kable(full_table,caption = 'Summary table', digits = 2)
+  knitr::kable(full_table,caption = 'Summary table', digits = digits)
 }
 
 
