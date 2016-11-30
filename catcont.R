@@ -4,9 +4,9 @@
 # date: 30/11/2016
 ############################################################################################################
 # required packages ---------------------------------------------------------
-library(Hmisc)
-library(pander)
-library(pROC)
+require(Hmisc)
+require(pander)
+require(pROC)
 # required functions ---------------------------------------------------------
 format_pval <- function(x){
   if (x < .001) return(paste('<', '.001'))
