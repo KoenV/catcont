@@ -1,16 +1,16 @@
 ############################################################################################################
 # Function catcon: make summary tables of categorical and continuous data with optional between group tests
 # Analyses: koen.vanbrabant@kuleuven.be
-# date: 30/11/2016
+# date: 5/12/2016
 ############################################################################################################
 # required packages ---------------------------------------------------------
 require(Hmisc)
-require(pander)
 require(pROC)
 # required functions ---------------------------------------------------------
 
 # catcon function ---------------------------------------------------------
 catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c(),digits=2){
+  full_data = data # keep an untouched part of the data to re-use in the NA subsetting
   # format p-values function (run in function environment)
   format_pval <- function(x){
     if (x < .001) return(paste('<', '.001'))
@@ -21,6 +21,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
   seperate_info = vector('list',length(list_of_variables))
   if (group==FALSE){
     for(i in 1:length(list_of_variables)){
+      data = full_data[!is.na(full_data[,list_of_variables[i]]),] # only work with non-missing data on the variable of interest
       # group is none ---------------------------------------
       if(is.numeric(data[,list_of_variables[i]]) | is.integer(data[,list_of_variables[i]])){
         ## Continuous --------------------------------------------------------------
@@ -30,9 +31,9 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         seperate_info[[i]] = TemplateMatrix_OneGroup_Continuous
         # calculate the statistics 
         seperate_info[[i]][1,1] = paste0('**',ifelse(label(data[,list_of_variables[i]])=='',list_of_variables[i],label(data[,list_of_variables[i]])),'**')
-        seperate_info[[i]][2,3] = length(data[,list_of_variables[i]])
+        seperate_info[[i]][2,3] = nrow(data)
         seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),']') 
-        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),','
+        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]],na.rm = TRUE),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),','
                                                                                         ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
         seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
       }    
@@ -57,6 +58,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
   }
   if (group==TRUE){
     for(i in 1:length(list_of_variables)){
+      data = full_data[!is.na(full_data[,list_of_variables[i]]),] # only work with non-missing data on the variable of interest
       ## Continuous --------------------------------------------------------------
       if(is.numeric(data[,list_of_variables[i]]) | is.integer(data[,list_of_variables[i]])){
         TemplateMatrix_MultipleGroups_Continuous = matrix(c(''),5,nlevels(data[,which.group])+3)
@@ -65,7 +67,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         TemplateMatrix_MultipleGroups_Continuous[2:5,2] = c('N','mean (std)','median (IQR)','range')
         seperate_info[[i]]=TemplateMatrix_MultipleGroups_Continuous
         # total information
-        seperate_info[[i]][2,3] = length(data[,list_of_variables[i]])
+        seperate_info[[i]][2,3] = nrow(data)
         seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),']') 
         seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
                                                                                         round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
