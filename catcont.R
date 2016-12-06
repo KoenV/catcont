@@ -11,7 +11,7 @@ require(pROC)
 # required functions ---------------------------------------------------------
 
 # catcon function ---------------------------------------------------------
-catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c(),digits=2){
+catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c(),digits=2,caption='Summary Table'){
   full_data = data # keep an untouched part of the data to re-use in the NA subsetting
   # format p-values function (run in function environment)
   format_pval <- function(x){
@@ -165,7 +165,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
                   Template_DiscreteTest[1,testnr] = 'Diff (95% CI)'
                   
                   data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
-                  hold.CI = (prop.test(table(droplevels(relevel(data_subset[,which.group],ref=levels(data_subset[,which.group])[2])),
+                  hold.CI = (prop.test(table(droplevels(data_subset[,which.group]),
                                              data_subset[,list_of_variables[i]]), correct=FALSE,conf.level=.95))$conf.int
                   
                   Template_DiscreteTest[2,testnr] = paste0(round(mean(hold.CI),digits),paste0('(',round(hold.CI[1],digits),',', round(hold.CI[2],digits),')'))
@@ -198,5 +198,5 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
     }
   }
   full_table = do.call("rbind", seperate_info)
-  knitr::kable(full_table,caption = 'Summary table', digits = digits)
+  knitr::kable(full_table,caption = caption, digits = digits)
 }
