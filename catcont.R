@@ -3,6 +3,8 @@
 # Analyses: koen.vanbrabant@kuleuven.be
 # date: 5/12/2016
 ############################################################################################################
+# TODO: when which.group has more than two levels effect size (AUC or proportion) needs to be replaced with a p-value.
+
 # required packages ---------------------------------------------------------
 require(Hmisc)
 require(pROC)
@@ -32,10 +34,10 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         # calculate the statistics 
         seperate_info[[i]][1,1] = paste0('**',ifelse(label(data[,list_of_variables[i]])=='',list_of_variables[i],label(data[,list_of_variables[i]])),'**')
         seperate_info[[i]][2,3] = nrow(data)
-        seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),']') 
-        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]],na.rm = TRUE),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),','
-                                                                                        ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
-        seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
+        seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'(',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),')') 
+        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]],na.rm = TRUE),'(',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),';'
+                                                                                        ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),')')
+        seperate_info[[i]][5,3] = paste0(round(range(data[,list_of_variables[i]],na.rm=TRUE)[1],digits),',',round(range(data[,list_of_variables[i]],na.rm=TRUE)[2],digits)) 
       }    
       
       if(is.factor(data[,list_of_variables[i]]) | is.character(data[,list_of_variables[i]]) ){
@@ -68,20 +70,20 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         seperate_info[[i]]=TemplateMatrix_MultipleGroups_Continuous
         # total information
         seperate_info[[i]][2,3] = nrow(data)
-        seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),']') 
-        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'[',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
-                                                                                        round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
+        seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'(',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),')') 
+        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'(',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),';',
+                                                                                        round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),')')
         
-        seperate_info[[i]][5,3] = paste0(range(data[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data[,list_of_variables[i]],na.rm=TRUE)[2]) 
+        seperate_info[[i]][5,3] = paste0(round(range(data[,list_of_variables[i]],na.rm=TRUE)[1],digits),',',round(range(data[,list_of_variables[i]],na.rm=TRUE)[2],digits)) 
         # seperate group information
         for(ngroup in 1:nlevels(data[,which.group])){
           data_subset = subset(data,data[,which.group]==levels(data[,which.group])[ngroup]) # take subset on which.group levels
           
           seperate_info[[i]][2,3+ngroup] = length(data_subset[,list_of_variables[i]])
-          seperate_info[[i]][3,3+ngroup] = paste0(round(mean(data_subset[,list_of_variables[i]],na.rm=TRUE),2),'[',round(sd(data_subset[,list_of_variables[i]],na.rm=TRUE),digits),']') 
-          seperate_info[[i]][4,3+ngroup] = paste0(median(data_subset[,list_of_variables[i]]),'[',paste0(round(quantile(data_subset[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
-                                                                                                        round(quantile(data_subset[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),']')
-          seperate_info[[i]][5,3+ngroup] = paste0(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[1],',',range(data_subset[,list_of_variables[i]],na.rm=TRUE)[2]) 
+          seperate_info[[i]][3,3+ngroup] = paste0(round(mean(data_subset[,list_of_variables[i]],na.rm=TRUE),2),'(',round(sd(data_subset[,list_of_variables[i]],na.rm=TRUE),digits),')') 
+          seperate_info[[i]][4,3+ngroup] = paste0(median(data_subset[,list_of_variables[i]]),'(',paste0(round(quantile(data_subset[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
+                                                                                                        round(quantile(data_subset[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),')')
+          seperate_info[[i]][5,3+ngroup] = paste0(round(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[1],digits),',',round(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[2],digits)) 
           
         }
         if(formal.test==TRUE){
@@ -103,14 +105,12 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
                 colnames(Template_ContinuousTest)[testnr] = paste0('[',levels(data[,which.group])[k],' vs.',
                                                                    levels(data[,which.group])[j],']')
                 
-                Template_ContinuousTest[1,testnr] = 'AUC (p.val)'
+                Template_ContinuousTest[1,testnr] = 'AUC (95% CI)'
                 
                 data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
                 
-                Template_ContinuousTest[2,testnr] = paste0(round(auc(droplevels(data_subset[,which.group]), data_subset[,list_of_variables[i]]),digits),
-                                                           '(',
-                                                           format_pval(wilcox.test(data_subset[,list_of_variables[i]] ~ droplevels(data_subset[,which.group]))$p.value),
-                                                           ')')
+                AUC.test = round(pROC::ci.auc(droplevels(data_subset[,which.group]), data_subset[,list_of_variables[i]]),digits)
+                Template_ContinuousTest[2,testnr] = paste0(AUC.test[2],'(',AUC.test[1],';',AUC.test[3],')')
                 testnr =  testnr + 1
               }
             }
@@ -162,14 +162,13 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
                   colnames(Template_DiscreteTest)[testnr] = paste0('[',levels(data[,which.group])[k],' vs.',
                                                                    levels(data[,which.group])[j],']')
                   
-                  Template_DiscreteTest[1,testnr] = '95% CI (p.val)'
+                  Template_DiscreteTest[1,testnr] = 'Diff (95% CI)'
                   
                   data_subset = subset(data,data[,which.group] %in% levels(data[,which.group])[c(k,j)]) # take subset on which.group levels
-                  hold.CI = round((prop.test(table(droplevels(data_subset[,which.group]),data_subset[,list_of_variables[i]]), correct=FALSE,conf.level=.95))$conf.int,digits)
-                  Template_DiscreteTest[2,testnr] = paste0(paste0('[',hold.CI[1],',',hold.CI[2],']'),
-                                                           '(',
-                                                           format_pval((fisher.test(table(data_subset[,which.group],data_subset[,list_of_variables[i]]),alternative = "two.sided",conf.level=.95))$p.value),
-                                                           ')')
+                  hold.CI = (prop.test(table(droplevels(relevel(data_subset[,which.group],ref=levels(data_subset[,which.group])[2])),
+                                             data_subset[,list_of_variables[i]]), correct=FALSE,conf.level=.95))$conf.int
+                  
+                  Template_DiscreteTest[2,testnr] = paste0(round(mean(hold.CI),digits),paste0('(',round(hold.CI[1],digits),',', round(hold.CI[2],digits),')'))
                   testnr =  testnr + 1
                 }
               }
