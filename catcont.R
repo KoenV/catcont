@@ -6,9 +6,10 @@
 # TODO: when which.group has more than two levels effect size (AUC or proportion) needs to be replaced with a p-value.
 
 # required packages ---------------------------------------------------------
-require(Hmisc)
-require(pROC)
-# required functions ---------------------------------------------------------
+packages <- c("Hmisc", "pROC")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())))  
+}
 
 # catcon function ---------------------------------------------------------
 catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),formal.test=c(),digits=2,caption='Summary Table'){
@@ -34,8 +35,8 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         # calculate the statistics 
         seperate_info[[i]][1,1] = paste0('**',ifelse(label(data[,list_of_variables[i]])=='',list_of_variables[i],label(data[,list_of_variables[i]])),'**')
         seperate_info[[i]][2,3] = nrow(data)
-        seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'(',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),')') 
-        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]],na.rm = TRUE),'(',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),';'
+        seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),digits),'(',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),')') 
+        seperate_info[[i]][4,3] = paste0(round(median(data[,list_of_variables[i]],na.rm = TRUE),digits),'(',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),';'
                                                                                         ,round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),')')
         seperate_info[[i]][5,3] = paste0(round(range(data[,list_of_variables[i]],na.rm=TRUE)[1],digits),',',round(range(data[,list_of_variables[i]],na.rm=TRUE)[2],digits)) 
       }    
@@ -71,7 +72,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
         # total information
         seperate_info[[i]][2,3] = nrow(data)
         seperate_info[[i]][3,3] = paste0(round(mean(data[,list_of_variables[i]],na.rm=TRUE),2),'(',round(sd(data[,list_of_variables[i]],na.rm=TRUE),digits),')') 
-        seperate_info[[i]][4,3] = paste0(median(data[,list_of_variables[i]]),'(',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),';',
+        seperate_info[[i]][4,3] = paste0(round(median(data[,list_of_variables[i]]),digits),'(',paste0(round(quantile(data[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),';',
                                                                                         round(quantile(data[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),')')
         
         seperate_info[[i]][5,3] = paste0(round(range(data[,list_of_variables[i]],na.rm=TRUE)[1],digits),',',round(range(data[,list_of_variables[i]],na.rm=TRUE)[2],digits)) 
@@ -81,7 +82,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),form
           
           seperate_info[[i]][2,3+ngroup] = length(data_subset[,list_of_variables[i]])
           seperate_info[[i]][3,3+ngroup] = paste0(round(mean(data_subset[,list_of_variables[i]],na.rm=TRUE),2),'(',round(sd(data_subset[,list_of_variables[i]],na.rm=TRUE),digits),')') 
-          seperate_info[[i]][4,3+ngroup] = paste0(median(data_subset[,list_of_variables[i]]),'(',paste0(round(quantile(data_subset[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
+          seperate_info[[i]][4,3+ngroup] = paste0(round(median(data_subset[,list_of_variables[i]]),digits),'(',paste0(round(quantile(data_subset[,list_of_variables[i]],c(.25),na.rm=TRUE),digits),',',
                                                                                                         round(quantile(data_subset[,list_of_variables[i]],c(.75),na.rm=TRUE),digits)),')')
           seperate_info[[i]][5,3+ngroup] = paste0(round(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[1],digits),',',round(range(data_subset[,list_of_variables[i]],na.rm=TRUE)[2],digits)) 
           
