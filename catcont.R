@@ -99,7 +99,7 @@ catcont = function(list_of_variables=c(),data=c(),group=c(),which.group=c(),
         
         full_table = do.call("rbind", seperate_info)
     
-        return(knitr::kable(full_table))
+        return(knitr::kable(full_table,caption = caption,digits = digits))
     }
   
   
